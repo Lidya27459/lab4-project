@@ -1,0 +1,92 @@
+---
+title: "Lab4 Creating Maps Using Tidycensus Data"
+author: "Lidya Tedros"
+date: "dx27459@umbc.edu"
+output: html_document
+---
+
+```{r}
+# this is the setup chunk that is run first
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+library(extrafont)
+library(ggspatial)
+library(tidycensus)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(crsuggest)
+library(ggsn)
+options(tigris_use_cache = TRUE)
+```
+
+
+```{r}
+# tidycensus function to get acs data by state on median monthly gas costs
+mgc_2021 <- get_acs(
+  geography = "state",
+  variables = "B25133_001", # Monthly Gas Costs
+  year = 2021,
+  survey = "acs5",
+  geometry = TRUE,
+  resolution = "20m"
+) %>%
+  shift_geometry()
+  
+```
+
+```{r}
+# store the ggplot in the variable mgc_2021
+ggplot(data = mgc_2021, aes(fill = estimate)) + 
+  geom_sf() +
+  
+  scale_fill_distiller(palette = "Purples",
+                       direction = 1)+
+  
+  labs(title = "Average US Monthly Gas Costs, 2017-2021",
+       caption = "Data source: 2017-2021 5-year ACS, US Census Bureau",
+       fill = "ACS estimate") + 
+  #North arrow and scale  
+    annotation_scale(location = "br", dist_unit = "mil") +
+     annotation_north_arrow(location = "tl", which_north = "false",
+                style = north_arrow_orienteering)+
+  
+theme_void()
+```
+
+```{r}
+# tidycensus function to get acs data by Baltimore city on median monthly gas costs
+bac_mgc_2021 <- get_acs(
+  geography = "tract", 
+  variables = "B25133_001",
+  state = "MD", 
+  county = "Baltimore city",
+  year = 2021,
+  survey = "acs5",
+  geometry = TRUE,
+)
+
+bac_mgc_2021
+```
+
+
+```{r}
+# store the ggplot in the variable bac_mgc_2021
+ggplot(data = bac_mgc_2021, aes(fill = estimate)) + 
+  geom_sf() +
+  
+  scale_fill_distiller(palette = "Purples",
+                       direction = 1)+
+  
+  labs(title = "Average Baltimore City Monthly Gas Costs ,2017-2021",
+       caption = "Data source: 2017-2021 5-year ACS, US Census Bureau",
+       fill = "ACS estimate") + 
+  #North arrow and scale  
+    annotation_scale(location = "br", dist_unit = "mil") +
+     annotation_north_arrow(location = "tl", which_north = "true",
+                style = north_arrow_orienteering)+
+  
+  
+theme_void()
+```
